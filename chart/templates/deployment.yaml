@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels: { app: {{ .Release.Name }} }
+  template:
+    metadata:
+      labels: { app: {{ .Release.Name }} }
+    spec:
+      containers:
+      - name: {{ .Release.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        {{- if .Values.port }}
+        ports: [{ containerPort: {{ .Values.port }} }]
+        {{- end }}
+        envFrom:
+        - configMapRef: { name: shopstream-config }
+        env:
+        - { name: DB_USER,     valueFrom: { secretKeyRef: { name: db-creds, key: username } } }
+        - { name: DB_PASSWORD, valueFrom: { secretKeyRef: { name: db-creds, key: password } } }
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        {{- if .Values.probes.http }}
+        livenessProbe:
+          httpGet: { path: /healthz, port: {{ .Values.port }} }
+          periodSeconds: 10
+        readinessProbe:
+          httpGet: { path: /readyz, port: {{ .Values.port }} }
+          periodSeconds: 5
+        {{- end }}
+        # No liveness probe for probe-less services (worker). If the container's
+        # main process dies the pod restarts anyway; a real worker liveness check
+        # would be a heartbeat file the loop touches each iteration.

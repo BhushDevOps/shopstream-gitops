@@ -1,0 +1,9 @@
+# Only what differs from chart/values.yaml. The worker has no HTTP port,
+# so it needs no Service and no HTTP probes.
+image:
+  repository: 708485767572.dkr.ecr.us-east-1.amazonaws.com/shopstream/worker
+  tag: v1
+replicas: 1
+port: null
+service: { enabled: false }
+probes: { http: false }

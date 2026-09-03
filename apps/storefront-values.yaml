@@ -1,0 +1,5 @@
+# Only what differs from chart/values.yaml.
+image:
+  repository: 708485767572.dkr.ecr.us-east-1.amazonaws.com/shopstream/storefront
+  tag: v1
+replicas: 2
