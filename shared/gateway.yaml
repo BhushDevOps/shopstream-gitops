@@ -1,0 +1,65 @@
+# Day 5's traffic path. Applying the Gateway makes the
+# Load Balancer Controller create a real ALB (takes ~2-3 min).
+# Moved here from the old shopstream-full chart so it is
+# GitOps-managed like everything else since Day 11's app-of-apps cutover.
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: alb
+spec:
+  controllerName: gateway.k8s.aws/alb
+---
+# Gateway API's replacement for the "scheme: internet-facing" annotation.
+# Without this the LBC builds an INTERNAL ALB in the private subnets -
+# its DNS resolves to 10.0.x.x addresses a browser can never reach.
+apiVersion: gateway.k8s.aws/v1
+kind: LoadBalancerConfiguration
+metadata:
+  name: web
+spec:
+  scheme: internet-facing   # public ALB, placed in the role/elb tagged subnets
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: web
+spec:
+  gatewayClassName: alb
+  infrastructure:
+    parametersRef:          # attach the LBC configuration above to THIS gateway
+      group: gateway.k8s.aws
+      kind: LoadBalancerConfiguration
+      name: web
+  listeners:
+  - name: http
+    port: 80
+    protocol: HTTP
+    allowedRoutes:
+      namespaces:
+        from: Same          # routes may attach only from this namespace
+---
+# Gateway API has no annotations, so "target-type: ip" (Day 5) moved into
+# this LBC-specific object. Without it the LBC defaults to INSTANCE targets,
+# which need a NodePort service - and fails on our ClusterIP with:
+#   "TargetGroup port is empty ... service must be of type NodePort or LoadBalancer"
+apiVersion: gateway.k8s.aws/v1
+kind: TargetGroupConfiguration
+metadata:
+  name: storefront
+spec:
+  targetReference:
+    name: storefront          # the Service this applies to
+  defaultConfiguration:
+    targetType: ip            # ALB -> pod IPs directly (the EKS-preferred mode)
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: shopstream
+spec:
+  parentRefs:
+  - name: web
+  rules:
+  - backendRefs:
+    - name: storefront
+      port: 8080
