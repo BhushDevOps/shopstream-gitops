@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/BhushDevOps/shopstream-gitops.git
-    targetRevision: main
+    targetRevision: master
     path: chart
     helm: { valueFiles: [../apps/storefront-values.yaml] }
   destination: { server: https://kubernetes.default.svc, namespace: shopstream }
