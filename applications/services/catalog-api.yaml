@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: catalog-api
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/BhushDevOps/shopstream-gitops.git
+    targetRevision: main
+    path: chart
+    helm: { valueFiles: [../apps/catalog-api-values.yaml] }
+  destination: { server: https://kubernetes.default.svc, namespace: shopstream }
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions: [CreateNamespace=true]

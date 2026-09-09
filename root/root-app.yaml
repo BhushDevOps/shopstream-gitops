@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: shopstream-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/BhushDevOps/shopstream-gitops.git
+    targetRevision: main
+    path: applications
+    directory: { recurse: true }
+  destination: { server: https://kubernetes.default.svc, namespace: argocd }
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }

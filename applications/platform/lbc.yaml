@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: aws-load-balancer-controller
+  namespace: argocd
+  annotations: { argocd.argoproj.io/sync-wave: "-1" }
+spec:
+  project: default
+  source:
+    repoURL: https://aws.github.io/eks-charts
+    chart: aws-load-balancer-controller
+    targetRevision: "3.5.*"          # pin a range, don't float on latest
+    helm:
+      values: |
+        clusterName: shopstream-dev
+        region: us-east-1
+        vpcId: vpc-0d57cb7dea2a86808
+        serviceAccount:
+          name: aws-load-balancer-controller   # must match lbc.tf's pod identity association
+  destination: { server: https://kubernetes.default.svc, namespace: kube-system }
+  syncPolicy:
+    automated: { selfHeal: true }     # no prune - avoid tearing down the controller mid-drill
+    syncOptions: [CreateNamespace=true]
