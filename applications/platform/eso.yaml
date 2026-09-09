@@ -17,4 +17,4 @@ spec:
   destination: { server: https://kubernetes.default.svc, namespace: external-secrets }
   syncPolicy:
     automated: { selfHeal: true }     # no prune here - you don't want ESO's CRDs deleted lightly
-    syncOptions: [CreateNamespace=true, ServerSideApply=true]  # ESO's CRDs exceed kubectl's client-side apply annotation limit
+    syncOptions: [CreateNamespace=true, Replace=true]  # ClusterSecretStore/SecretStore CRDs are ~700KB each - too big for apply's last-applied-config annotation
