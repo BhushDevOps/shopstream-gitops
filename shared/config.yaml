@@ -1,0 +1,42 @@
+# Settings all services share (Day 8 pattern). Previously created by the
+# old shopstream-full umbrella chart (install.sh); moved here so it is
+# GitOps-managed like everything else since Day 11's app-of-apps cutover.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shopstream-config
+data:
+  DB_HOST: "shopstream-dev.cq3iemwqw6v5.us-east-1.rds.amazonaws.com"
+  DB_PORT: "5432"
+  DB_NAME: "shopstream"
+  REDIS_HOST: "redis-0.redis"
+  CATALOG_URL: "http://catalog-api:8080"
+---
+# How to reach AWS Secrets Manager. No credentials here:
+# the ESO controller's Pod Identity role provides them (eso.tf).
+apiVersion: external-secrets.io/v1
+kind: ClusterSecretStore
+metadata:
+  name: aws
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: us-east-1
+---
+# Copy the RDS master secret into a K8s Secret named db-creds,
+# re-checked every minute. Git/chart holds the ADDRESS, never the value.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: db-creds
+spec:
+  refreshInterval: 1m
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: aws
+  target:
+    name: db-creds
+  dataFrom:
+  - extract:
+      key: "arn:aws:secretsmanager:us-east-1:708485767572:secret:rds!db-f1dd1acc-8802-49cc-a97e-b5ba4bf70082-G9x6WL"

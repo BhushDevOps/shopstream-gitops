@@ -1,17 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: storefront
+  name: shopstream-shared-config
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
+  annotations: { argocd.argoproj.io/sync-wave: "0" }   # after ESO's CRDs (-1), before service pods (1)
 spec:
   project: default
   source:
     repoURL: https://github.com/BhushDevOps/shopstream-gitops.git
     targetRevision: master
-    path: chart
-    helm: { valueFiles: [../apps/storefront-values.yaml] }
+    path: shared
   destination: { server: https://kubernetes.default.svc, namespace: shopstream }
   syncPolicy:
     automated: { prune: true, selfHeal: true }
