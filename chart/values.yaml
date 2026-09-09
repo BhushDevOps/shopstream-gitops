@@ -1,5 +1,5 @@
 # Defaults. Each service overrides only what differs, in apps/<name>-values.yaml.
-replicas: 2
+replicas: 1
 port: 8080
 image: { repository: "", tag: "v1" }
 service: { enabled: true }
