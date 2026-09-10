@@ -2,7 +2,7 @@
 # so it needs no Service and no HTTP probes.
 image:
   repository: 708485767572.dkr.ecr.us-east-1.amazonaws.com/shopstream/worker
-  tag: v1
+  tag: 86333f43d6d3a7b98498877528c355c88621334c
 replicas: 1
 port: null
 service: { enabled: false }
