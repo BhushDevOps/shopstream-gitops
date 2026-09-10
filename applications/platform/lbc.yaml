@@ -17,6 +17,10 @@ spec:
         vpcId: vpc-0c40fc2f57084ac83
         serviceAccount:
           name: aws-load-balancer-controller   # must match lbc.tf's pod identity association
+        controllerConfig:
+          featureGates:
+            ALBGatewayAPI: true    # without these the LBC silently ignores Gateway objects - no ALB, no error
+            NLBGatewayAPI: true
   destination: { server: https://kubernetes.default.svc, namespace: kube-system }
   syncPolicy:
     automated: { selfHeal: true }     # no prune - avoid tearing down the controller mid-drill
