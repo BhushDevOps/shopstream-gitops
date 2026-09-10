@@ -14,7 +14,7 @@ spec:
       values: |
         clusterName: shopstream-dev
         region: us-east-1
-        vpcId: vpc-0d57cb7dea2a86808
+        vpcId: vpc-0c40fc2f57084ac83
         serviceAccount:
           name: aws-load-balancer-controller   # must match lbc.tf's pod identity association
   destination: { server: https://kubernetes.default.svc, namespace: kube-system }
