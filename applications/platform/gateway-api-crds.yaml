@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway-api-crds
+  namespace: argocd
+  annotations: { argocd.argoproj.io/sync-wave: "-1" }   # must exist before shared-config's Gateway/HTTPRoute (wave 0)
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/BhushDevOps/shopstream-gitops.git
+    targetRevision: master
+    path: gateway-api
+  destination: { server: https://kubernetes.default.svc, namespace: default }
+  syncPolicy:
+    automated: { selfHeal: true }     # no prune - avoid deleting the whole Gateway API on a bad commit
+    syncOptions: [ServerSideApply=true]  # httproutes CRD alone is ~430KB, over the plain-apply annotation limit
