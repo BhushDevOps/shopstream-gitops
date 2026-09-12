@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kube-prometheus-stack
+  namespace: argocd
+  annotations: { argocd.argoproj.io/sync-wave: "-1" }
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "90.*"
+    helm:
+      values: |
+        prometheus:
+          prometheusSpec:
+            nodeSelector: { role: platform }     # keep it off Karpenter's tainted workload nodes
+        grafana:
+          nodeSelector: { role: platform }
+          adminPassword: "shopstream-dev"        # learning only - real prod uses ESO for this too
+  destination: { server: https://kubernetes.default.svc, namespace: monitoring }
+  syncPolicy:
+    automated: { selfHeal: true }
+    syncOptions: [CreateNamespace=true, ServerSideApply=true]   # CRDs here are large, same reason as ESO's Day-11 note
