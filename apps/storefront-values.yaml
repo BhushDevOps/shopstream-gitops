@@ -3,3 +3,4 @@ image:
   repository: 708485767572.dkr.ecr.us-east-1.amazonaws.com/shopstream/storefront
   tag: fec7d12a0d84046f627294e34f31ee6e7e35ca63
 replicas: 2
+hpa: { enabled: true, min: 2, max: 6, targetCPU: 60 }
