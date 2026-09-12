@@ -16,7 +16,7 @@ spec:
           name: karpenter    # must match karpenter.tf's pod identity association
         settings:
           clusterName: shopstream-dev
-          clusterEndpoint: https://37B3C7F0BF4C9D97B9914D03E5C0F435.gr7.us-east-1.eks.amazonaws.com
+          clusterEndpoint: https://5E59387420D7EB9C7589FEF042CECAD3.gr7.us-east-1.eks.amazonaws.com
         replicas: 1
   destination: { server: https://kubernetes.default.svc, namespace: karpenter }
   syncPolicy:
