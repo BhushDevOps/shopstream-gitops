@@ -1,5 +1,5 @@
 # Only what differs from chart/values.yaml.
 image:
   repository: 708485767572.dkr.ecr.us-east-1.amazonaws.com/shopstream/orders-api
-  tag: 86333f43d6d3a7b98498877528c355c88621334c
+  tag: fec7d12a0d84046f627294e34f31ee6e7e35ca63
 replicas: 2
