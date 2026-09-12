@@ -1,7 +1,7 @@
 # Only what differs from chart/values.yaml.
 image:
   repository: 708485767572.dkr.ecr.us-east-1.amazonaws.com/shopstream/catalog-api
-  tag: fec7d12a0d84046f627294e34f31ee6e7e35ca63
+  tag: 4cf5bbcabcce53746333abc9d8474fb2ad8d5111
 replicas: 1
 resources:
   requests: { cpu: 100m, memory: 128Mi }
