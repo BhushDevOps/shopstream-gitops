@@ -10,6 +10,8 @@ spec:
     metadata:
       labels: { app: {{ .Release.Name }} }
     spec:
+      nodeSelector: { role: workload }
+      tolerations: [{ key: workload, operator: Equal, value: "true", effect: NoSchedule }]
       containers:
       - name: {{ .Release.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

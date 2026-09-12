@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter-nodepool
+  namespace: argocd
+  annotations: { argocd.argoproj.io/sync-wave: "0" }   # after the karpenter controller (-1), before workload pods (1)
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/BhushDevOps/shopstream-gitops.git
+    targetRevision: master
+    path: karpenter
+  destination: { server: https://kubernetes.default.svc, namespace: karpenter }
+  syncPolicy:
+    automated: { selfHeal: true }   # no prune - don't let a bad commit rip out the NodePool while nodes are in use

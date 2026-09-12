@@ -1,0 +1,26 @@
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata: { name: shopstream }
+spec:
+  amiFamily: AL2023
+  role: shopstream-dev-eks-node          # reuses the SAME node role as the managed node group
+  subnetSelectorTerms:        [{ tags: { "karpenter.sh/discovery": "shopstream-dev" } }]
+  securityGroupSelectorTerms: [{ tags: { "karpenter.sh/discovery": "shopstream-dev" } }]
+---
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata: { name: shopstream-workload }
+spec:
+  template:
+    metadata:
+      labels: { role: workload }        # what ShopStream pods target via nodeSelector
+    spec:
+      nodeClassRef: { group: karpenter.k8s.aws, kind: EC2NodeClass, name: shopstream }
+      requirements:
+      - { key: karpenter.k8s.aws/instance-family, operator: In, values: ["m7i-flex"] }
+      - { key: karpenter.sh/capacity-type, operator: In, values: ["on-demand"] }   # free-plan: no spot
+      taints:
+      - { key: workload, value: "true", effect: NoSchedule }   # keep platform pods off these nodes
+  limits: { cpu: "8" }                 # hard ceiling - Karpenter cannot runaway-provision past this
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized

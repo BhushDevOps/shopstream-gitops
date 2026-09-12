@@ -3,3 +3,7 @@ image:
   repository: 708485767572.dkr.ecr.us-east-1.amazonaws.com/shopstream/catalog-api
   tag: fec7d12a0d84046f627294e34f31ee6e7e35ca63
 replicas: 1
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: 250m, memory: 256Mi }
+hpa: { enabled: true, min: 1, max: 4, targetCPU: 50 }
