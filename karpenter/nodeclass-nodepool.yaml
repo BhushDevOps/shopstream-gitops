@@ -3,6 +3,7 @@ kind: EC2NodeClass
 metadata: { name: shopstream }
 spec:
   amiFamily: AL2023
+  amiSelectorTerms: [{ alias: "al2023@latest" }]   # required in current API - no more implicit AMI lookup from amiFamily alone
   role: shopstream-dev-eks-node          # reuses the SAME node role as the managed node group
   subnetSelectorTerms:        [{ tags: { "karpenter.sh/discovery": "shopstream-dev" } }]
   securityGroupSelectorTerms: [{ tags: { "karpenter.sh/discovery": "shopstream-dev" } }]
@@ -24,3 +25,4 @@ spec:
   limits: { cpu: "8" }                 # hard ceiling - Karpenter cannot runaway-provision past this
   disruption:
     consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m   # required explicitly in current API (no more implicit 0s default applied)
