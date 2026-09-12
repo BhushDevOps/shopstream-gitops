@@ -40,3 +40,18 @@ spec:
   dataFrom:
   - extract:
       key: "arn:aws:secretsmanager:us-east-1:708485767572:secret:rds!db-019f9e8d-fbc7-491e-a348-fb962268de61-pZjrvy"
+---
+# Day 14 Task 6: tells the Prometheus Operator to scrape /metrics on
+# catalog-api, storefront, orders-api. "port: http" matches the NAME given
+# to the Service port in chart/templates/service.yaml, not the number
+# 8080 itself - ServiceMonitor matches Service ports by name.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: shopstream-services
+spec:
+  selector:
+    matchExpressions:
+    - { key: app, operator: In, values: [catalog-api, storefront, orders-api] }
+  endpoints:
+  - { port: http, path: /metrics, interval: 15s }
