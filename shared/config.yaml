@@ -39,4 +39,4 @@ spec:
     name: db-creds
   dataFrom:
   - extract:
-      key: "arn:aws:secretsmanager:us-east-1:708485767572:secret:rds!db-8511e676-f74f-41bc-a5d7-dd95faf18bb7-A6VmlJ"
+      key: "arn:aws:secretsmanager:us-east-1:708485767572:secret:rds!db-e7058475-3d7d-4eab-8883-fb853190df84-9omddl"
