@@ -39,7 +39,7 @@ spec:
     name: db-creds
   dataFrom:
   - extract:
-      key: "arn:aws:secretsmanager:us-east-1:708485767572:secret:rds!db-019f9e8d-fbc7-491e-a348-fb962268de61-pZjrvy"
+      key: "arn:aws:secretsmanager:us-east-1:708485767572:secret:rds!db-b6f01e6a-0131-4cdc-8ab2-2ab73f552350-ZtEtQK"
 ---
 # Day 14 Task 6: tells the Prometheus Operator to scrape /metrics on
 # catalog-api, storefront, orders-api. "port: http" matches the NAME given
