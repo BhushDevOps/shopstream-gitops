@@ -14,3 +14,6 @@ spec:
   syncPolicy:
     automated: { prune: true, selfHeal: true }
     syncOptions: [CreateNamespace=true]
+    retry:                            # ESO's webhook may not be up yet on a fresh cluster; keep retrying (~30s, 1m, 2m, 4m, 5m...)
+      limit: 10
+      backoff: { duration: 30s, factor: 2, maxDuration: 5m }
