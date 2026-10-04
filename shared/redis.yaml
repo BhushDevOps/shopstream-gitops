@@ -1,0 +1,46 @@
+# Day 9's queue, moved here from the old shopstream-full chart (it was left
+# behind in the app-of-apps cutover, so orders-api's /readyz failed and its
+# pods never got Service endpoints). Gives the DNS name redis-0.redis that
+# shopstream-config's REDIS_HOST expects.
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  clusterIP: None            # headless - DNS gives the pod's own IP
+  selector: { app: redis }
+  ports: [{ port: 6379 }]
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels: { app: redis }
+  template:
+    metadata:
+      labels: { app: redis }
+    spec:
+      containers:
+      - name: redis
+        image: public.ecr.aws/docker/library/redis:7-alpine
+        args: ["--appendonly", "yes"]     # write the queue to disk
+        ports: [{ containerPort: 6379 }]
+        resources:
+          requests: { cpu: 50m, memory: 64Mi }
+          limits: { memory: 128Mi }
+        volumeMounts: [{ name: data, mountPath: /data }]
+        readinessProbe:
+          exec: { command: ["redis-cli", "ping"] }
+          periodSeconds: 5
+  volumeClaimTemplates:
+  - metadata: { name: data }
+    spec:
+      accessModes: [ReadWriteOnce]
+      storageClassName: gp2    # no default StorageClass on this cluster, so name it explicitly
+      resources:
+        requests:
+          storage: 1Gi
