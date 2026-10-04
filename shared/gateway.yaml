@@ -42,6 +42,9 @@ spec:
 # this LBC-specific object. Without it the LBC defaults to INSTANCE targets,
 # which need a NodePort service - and fails on our ClusterIP with:
 #   "TargetGroup port is empty ... service must be of type NodePort or LoadBalancer"
+# Day 15: one per backend Service, so each gets its own ALB target group. The ALB
+# health check defaults to "/", which only storefront serves (catalog-api and
+# orders-api would 404 and be marked unhealthy), so point them at /readyz.
 apiVersion: gateway.k8s.aws/v1
 kind: TargetGroupConfiguration
 metadata:
@@ -51,7 +54,33 @@ spec:
     name: storefront          # the Service this applies to
   defaultConfiguration:
     targetType: ip            # ALB -> pod IPs directly (the EKS-preferred mode)
+    healthCheckConfig: { healthCheckPath: /readyz }
 ---
+apiVersion: gateway.k8s.aws/v1
+kind: TargetGroupConfiguration
+metadata:
+  name: orders-api
+spec:
+  targetReference:
+    name: orders-api
+  defaultConfiguration:
+    targetType: ip
+    healthCheckConfig: { healthCheckPath: /readyz }
+---
+apiVersion: gateway.k8s.aws/v1
+kind: TargetGroupConfiguration
+metadata:
+  name: catalog-api
+spec:
+  targetReference:
+    name: catalog-api
+  defaultConfiguration:
+    targetType: ip
+    healthCheckConfig: { healthCheckPath: /readyz }
+---
+# Path-based routing. The ALB picks a target group by URL path; the most specific
+# match wins and "/" is the catch-all. The APIs already serve these exact paths
+# (orders-api: /orders, catalog-api: /products), so no URL rewrite is needed.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -60,6 +89,9 @@ spec:
   parentRefs:
   - name: web
   rules:
-  - backendRefs:
-    - name: storefront
-      port: 8080
+  - matches: [{ path: { type: PathPrefix, value: /orders } }]
+    backendRefs: [{ name: orders-api, port: 8080 }]
+  - matches: [{ path: { type: PathPrefix, value: /products } }]
+    backendRefs: [{ name: catalog-api, port: 8080 }]
+  - matches: [{ path: { type: PathPrefix, value: / } }]
+    backendRefs: [{ name: storefront, port: 8080 }]
