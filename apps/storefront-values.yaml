@@ -1,6 +1,6 @@
 # Only what differs from chart/values.yaml.
 image:
   repository: 708485767572.dkr.ecr.us-east-1.amazonaws.com/shopstream/storefront
-  tag: 4cf5bbcabcce53746333abc9d8474fb2ad8d5111
+  tag: 935c66241e9fd77436999389ac5f2c1391d5073b
 replicas: 2
 hpa: { enabled: true, min: 2, max: 6, targetCPU: 60 }
