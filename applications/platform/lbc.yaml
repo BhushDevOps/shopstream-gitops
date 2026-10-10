@@ -14,7 +14,7 @@ spec:
       values: |
         clusterName: shopstream-dev
         region: us-east-1
-        vpcId: vpc-01be71f3a6f337eb5
+        vpcId: vpc-05f0dc16aa77ef3cd
         serviceAccount:
           name: aws-load-balancer-controller   # must match lbc.tf's pod identity association
         controllerConfig:
